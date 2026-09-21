@@ -2,7 +2,7 @@
 
 Eine REST API zur Verwaltung von Patienten und Terminen in einem Krankenhaus.
 
-Das Projekt wurde als Backend-Mini-Projekt mit Node.js, Express, PostgreSQL und Prisma entwickelt.
+Das Projekt wurde als Full-Stack-Mini-Projekt mit Node.js, Express, PostgreSQL, Prisma und React entwickelt.
 
 ## Funktionen
 
@@ -26,6 +26,11 @@ Das Projekt wurde als Backend-Mini-Projekt mit Node.js, Express, PostgreSQL und 
 - Helmet
 - CORS
 - express-rate-limit
+- React
+- Vite
+- Tailwind CSS
+- daisyUI
+- Motion
 
 ## Datenmodell
 
@@ -98,6 +103,34 @@ prisma/
 ├── migrations/
 └── schema.prisma
 ```
+
+## Frontend
+
+Zusätzlich zur REST API enthält das Projekt ein React-Frontend zur Verwaltung von Patienten und Terminen.
+
+### Funktionen
+
+- Patienten anzeigen
+- neue Patienten erstellen
+- Termine eines Patienten anzeigen
+- neue Termine erstellen
+- API-Requests und Responses anzeigen
+
+### Komponenten
+
+```text
+frontend/src/
+├── components/
+│   ├── ApiConsole.jsx
+│   ├── AppointmentList.jsx
+│   ├── AppointmentModal.jsx
+│   ├── PatientList.jsx
+│   └── PatientModal.jsx
+├── App.jsx
+└── main.jsx
+```
+
+Das Frontend kommuniziert über HTTP mit der REST API.
 
 ## Planung
 

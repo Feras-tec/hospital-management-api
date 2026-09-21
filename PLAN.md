@@ -274,3 +274,27 @@ Bei einer bereits vorhandenen E-Mail-Adresse wird der Prisma-Fehler P2002 behand
 409 Conflict
 
 Außerdem wird vor dem Erstellen eines Termins geprüft, ob der zugehörige Patient existiert.
+
+## Frontend
+
+Zusätzlich zur REST API wurde ein React-Frontend mit Vite erstellt.
+
+Das Frontend ermöglicht:
+
+- Patienten anzeigen
+- neue Patienten erstellen
+- Termine eines Patienten anzeigen
+- neue Termine erstellen
+- API-Requests und Responses in einer API-Konsole anzeigen
+
+### Frontend-Struktur
+
+Das Frontend ist modular in wiederverwendbare React-Komponenten aufgeteilt:
+
+- `PatientList` – zeigt die Patientenliste
+- `AppointmentList` – zeigt die Termine eines Patienten
+- `PatientModal` – Formular zum Erstellen eines Patienten
+- `AppointmentModal` – Formular zum Erstellen eines Termins
+- `ApiConsole` – zeigt Endpoint, HTTP-Status und API-Response
+
+Das Frontend kommuniziert über HTTP mit der REST API.
