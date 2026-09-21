@@ -4,8 +4,7 @@ import helmet from "helmet";
 import cors from "cors";
 import patientRoutes from "./routes/patientRoutes.js";
 import appointmentRoutes from "./routes/appointmentRoutes.js";
-import { rateLimit } from "express-rate-limit";
-
+import limiter from "./middleware/rateLimiter.js";
 // Erstelle die Express-App.
 const app = express();
 
@@ -20,15 +19,6 @@ app.use(
 );
 
 // Begrenzt die Anzahl der API-Anfragen.
-const limiter = rateLimit({
-  windowMs: 60 * 1000,
-  limit: 10,
-  standardHeaders: "draft-7",
-  legacyHeaders: false,
-  message: {
-    error: "Too many requests. Please try again later.",
-  },
-});
 
 app.use("/patients", limiter);
 app.use("/appointments", limiter);
