@@ -3,6 +3,8 @@ import { motion } from "motion/react";
 import ApiConsole from "./components/ApiConsole";
 import PatientModal from "./components/PatientModal";
 import AppointmentModal from "./components/AppointmentModal";
+import PatientList from "./components/PatientList";
+import AppointmentList from "./components/AppointmentList";
 function App() {
   const [patients, setPatients] = useState([]);
   const [selectedPatient, setSelectedPatient] = useState(null);
@@ -110,151 +112,19 @@ function App() {
                 <div className="stat-desc">Aktuelle Termine</div>
               </div>
             </div>
-
             {/* Patients */}
-            <div className="card bg-base-100 shadow-xl">
-              <div className="card-body">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="card-title text-2xl">Patienten</h2>
-                    <p className="text-sm opacity-60">
-                      Patienten verwalten und Termine anzeigen
-                    </p>
-                  </div>
-
-                  <button
-                    onClick={() => setShowPatientForm(true)}
-                    className="btn btn-primary"
-                  >
-                    + Patient hinzufügen
-                  </button>
-                </div>
-
-                <div className="divider"></div>
-
-                <div className="overflow-x-auto">
-                  <table className="table">
-                    <thead>
-                      <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>E-Mail</th>
-                        <th>Geburtsdatum</th>
-                        <th></th>
-                      </tr>
-                    </thead>
-
-                    <tbody>
-                      {patients.map((patient) => (
-                        <motion.tr
-                          key={patient.id}
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          className="hover"
-                        >
-                          <td>{patient.id}</td>
-
-                          <td className="font-semibold">{patient.name}</td>
-
-                          <td>{patient.email}</td>
-
-                          <td>
-                            {new Date(patient.birthDate).toLocaleDateString(
-                              "de-DE",
-                            )}
-                          </td>
-
-                          <td>
-                            <button
-                              onClick={() => loadAppointments(patient)}
-                              className="btn btn-sm btn-outline"
-                            >
-                              Termine
-                            </button>
-                          </td>
-                        </motion.tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
+            <PatientList
+              patients={patients}
+              onLoadAppointments={loadAppointments}
+              onAddPatient={() => setShowPatientForm(true)}
+            />
 
             {/* Appointments */}
-            <div className="card bg-base-100 shadow-xl">
-              <div className="card-body">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="card-title text-2xl">Termine</h2>
-                    <p className="text-sm opacity-60">
-                      Termine eines Patienten anzeigen
-                    </p>
-                  </div>
-
-                  <button
-                    className="btn btn-outline"
-                    onClick={() => setShowAppointmentForm(true)}
-                    disabled={!selectedPatient}
-                  >
-                    + Termin hinzufügen
-                  </button>
-                </div>
-
-                <div className="divider"></div>
-
-                {!selectedPatient ? (
-                  <div className="text-center opacity-50 py-10">
-                    Wähle zuerst einen Patienten aus.
-                  </div>
-                ) : (
-                  <div>
-                    <div className="mb-4">
-                      <span className="font-semibold">
-                        Patient: {selectedPatient.name}
-                      </span>
-                    </div>
-
-                    {appointments.length === 0 ? (
-                      <div className="text-center opacity-50 py-10">
-                        Keine Termine vorhanden.
-                      </div>
-                    ) : (
-                      <div className="overflow-x-auto">
-                        <table className="table">
-                          <thead>
-                            <tr>
-                              <th>ID</th>
-                              <th>Datum</th>
-                              <th>Grund</th>
-                            </tr>
-                          </thead>
-
-                          <tbody>
-                            {appointments.map((appointment) => (
-                              <motion.tr
-                                key={appointment.id}
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                              >
-                                <td>{appointment.id}</td>
-
-                                <td>
-                                  {new Date(appointment.date).toLocaleString(
-                                    "de-DE",
-                                  )}
-                                </td>
-
-                                <td>{appointment.reason}</td>
-                              </motion.tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
+            <AppointmentList
+              selectedPatient={selectedPatient}
+              appointments={appointments}
+              onAddAppointment={() => setShowAppointmentForm(true)}
+            />
           </motion.section>
 
           {/* API Console */}
@@ -263,6 +133,7 @@ function App() {
           </section>
         </div>
       </div>
+
       {showPatientForm && (
         <PatientModal
           onClose={() => setShowPatientForm(false)}
