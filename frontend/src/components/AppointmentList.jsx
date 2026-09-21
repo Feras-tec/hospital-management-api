@@ -1,12 +1,19 @@
 import { motion } from "motion/react";
 
-function AppointmentList({ selectedPatient, appointments, onAddAppointment }) {
+function AppointmentList({
+  selectedPatient,
+  appointments,
+  onAddAppointment,
+  onEditAppointment,
+  onDeleteAppointment,
+}) {
   return (
     <div className="card bg-base-100 shadow-xl">
       <div className="card-body">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="card-title text-2xl">Termine</h2>
+
             <p className="text-sm opacity-60">
               Termine eines Patienten anzeigen
             </p>
@@ -47,6 +54,7 @@ function AppointmentList({ selectedPatient, appointments, onAddAppointment }) {
                       <th>ID</th>
                       <th>Datum</th>
                       <th>Grund</th>
+                      <th>Aktionen</th>
                     </tr>
                   </thead>
 
@@ -56,6 +64,7 @@ function AppointmentList({ selectedPatient, appointments, onAddAppointment }) {
                         key={appointment.id}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
+                        className="hover"
                       >
                         <td>{appointment.id}</td>
 
@@ -64,6 +73,24 @@ function AppointmentList({ selectedPatient, appointments, onAddAppointment }) {
                         </td>
 
                         <td>{appointment.reason}</td>
+
+                        <td>
+                          <div className="flex flex-wrap gap-2">
+                            <button
+                              onClick={() => onEditAppointment(appointment)}
+                              className="btn btn-sm btn-info btn-outline"
+                            >
+                              Bearbeiten
+                            </button>
+
+                            <button
+                              onClick={() => onDeleteAppointment(appointment)}
+                              className="btn btn-sm btn-error btn-outline"
+                            >
+                              Löschen
+                            </button>
+                          </div>
+                        </td>
                       </motion.tr>
                     ))}
                   </tbody>

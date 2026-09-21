@@ -7,3 +7,6 @@ export const appointmentSchema = z.object({
   reason: z.string().min(3),
   patientId: z.number().int().positive(),
 });
+// Schema für die Aktualisierung eines Termins.
+// Bei PATCH sind alle Felder optional.
+export const appointmentUpdateSchema = appointmentSchema.partial();

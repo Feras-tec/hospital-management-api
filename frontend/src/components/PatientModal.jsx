@@ -1,15 +1,29 @@
 import { useState } from "react";
 
-function PatientModal({ onClose, onPatientCreated, setApiLog }) {
+function PatientModal({
+  onClose,
+  onPatientCreated,
+  onPatientUpdated,
+  setApiLog,
+  patient = null,
+}) {
+  const isEditMode = Boolean(patient);
+
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    birthDate: "",
+    name: patient?.name ?? "",
+    email: patient?.email ?? "",
+    birthDate: patient?.birthDate
+      ? new Date(patient.birthDate).toISOString().split("T")[0]
+      : "",
   });
+
   const handleSubmit = async () => {
+    const method = isEditMode ? "PATCH" : "POST";
+    const endpoint = isEditMode ? `/patients/${patient.id}` : "/patients";
+
     try {
-      const response = await fetch("http://localhost:3000/patients", {
-        method: "POST",
+      const response = await fetch(`http://localhost:3000${endpoint}`, {
+        method,
         headers: {
           "Content-Type": "application/json",
         },
@@ -19,8 +33,8 @@ function PatientModal({ onClose, onPatientCreated, setApiLog }) {
       const data = await response.json();
 
       setApiLog({
-        method: "POST",
-        endpoint: "/patients",
+        method,
+        endpoint,
         status: response.status,
         statusText: response.statusText,
         request: formData,
@@ -28,21 +42,35 @@ function PatientModal({ onClose, onPatientCreated, setApiLog }) {
       });
 
       if (response.ok) {
-        onPatientCreated(data);
+        if (isEditMode) {
+          onPatientUpdated(data);
+        } else {
+          onPatientCreated(data);
+        }
+
         onClose();
       }
     } catch (error) {
-      console.error("Fehler beim Erstellen des Patienten:", error);
+      console.error(
+        isEditMode
+          ? "Fehler beim Aktualisieren des Patienten:"
+          : "Fehler beim Erstellen des Patienten:",
+        error,
+      );
     }
   };
+
   return (
     <div className="modal modal-open" onClick={onClose}>
       <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-        <h3 className="font-bold text-xl mb-5">Neuen Patienten hinzufügen</h3>
+        <h3 className="font-bold text-xl mb-5">
+          {isEditMode ? "Patient bearbeiten" : "Neuen Patienten hinzufügen"}
+        </h3>
 
         <div className="space-y-4">
           <div>
             <label className="label">Name</label>
+
             <input
               type="text"
               placeholder="Max Mustermann"
@@ -59,6 +87,7 @@ function PatientModal({ onClose, onPatientCreated, setApiLog }) {
 
           <div>
             <label className="label">E-Mail</label>
+
             <input
               type="email"
               placeholder="max@example.com"
@@ -75,6 +104,7 @@ function PatientModal({ onClose, onPatientCreated, setApiLog }) {
 
           <div>
             <label className="label">Geburtsdatum</label>
+
             <input
               type="date"
               className="input input-bordered w-full"
@@ -95,7 +125,7 @@ function PatientModal({ onClose, onPatientCreated, setApiLog }) {
           </button>
 
           <button className="btn btn-primary" onClick={handleSubmit}>
-            Patient speichern
+            {isEditMode ? "Änderungen speichern" : "Patient speichern"}
           </button>
         </div>
       </div>

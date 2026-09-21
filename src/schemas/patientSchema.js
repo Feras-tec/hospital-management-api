@@ -7,3 +7,6 @@ export const patientSchema = z.object({
   email: z.email(),
   birthDate: z.coerce.date(),
 });
+// Schema für die Aktualisierung eines Patienten.
+// Bei PATCH sind alle Felder optional.
+export const patientUpdateSchema = patientSchema.partial();

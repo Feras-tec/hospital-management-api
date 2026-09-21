@@ -1,6 +1,12 @@
 import { motion } from "motion/react";
 
-function PatientList({ patients, onLoadAppointments, onAddPatient }) {
+function PatientList({
+  patients,
+  onLoadAppointments,
+  onAddPatient,
+  onEditPatient,
+  onDeletePatient,
+}) {
   return (
     <div className="card bg-base-100 shadow-xl">
       <div className="card-body">
@@ -27,7 +33,7 @@ function PatientList({ patients, onLoadAppointments, onAddPatient }) {
                 <th>Name</th>
                 <th>E-Mail</th>
                 <th>Geburtsdatum</th>
-                <th></th>
+                <th>Aktionen</th>
               </tr>
             </thead>
 
@@ -50,12 +56,28 @@ function PatientList({ patients, onLoadAppointments, onAddPatient }) {
                   </td>
 
                   <td>
-                    <button
-                      onClick={() => onLoadAppointments(patient)}
-                      className="btn btn-sm btn-outline"
-                    >
-                      Termine
-                    </button>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        onClick={() => onLoadAppointments(patient)}
+                        className="btn btn-sm btn-outline"
+                      >
+                        Termine
+                      </button>
+
+                      <button
+                        onClick={() => onEditPatient(patient)}
+                        className="btn btn-sm btn-info btn-outline"
+                      >
+                        Bearbeiten
+                      </button>
+
+                      <button
+                        onClick={() => onDeletePatient(patient)}
+                        className="btn btn-sm btn-error btn-outline"
+                      >
+                        Löschen
+                      </button>
+                    </div>
                   </td>
                 </motion.tr>
               ))}

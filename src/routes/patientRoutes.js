@@ -6,6 +6,8 @@ import {
   getPatients,
   getPatientById,
   getPatientAppointments,
+  updatePatient,
+  deletePatient,
 } from "../controllers/patientController.js";
 
 // Erstelle einen Router.
@@ -22,6 +24,10 @@ router.get("/:id/appointments", getPatientAppointments);
 
 // GET /patients/:id - Gibt einen bestimmten Patienten zurück.
 router.get("/:id", getPatientById);
+// PATCH /patients/:id - Aktualisiert einen Patienten.
+router.patch("/:id", updatePatient);
+// DELETE /patients/:id - Löscht einen Patienten.
+router.delete("/:id", deletePatient);
 
 // Exportiere den Router.
 export default router;

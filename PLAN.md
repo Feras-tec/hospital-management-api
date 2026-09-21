@@ -5,19 +5,23 @@
 Das Projekt ist eine REST API zur Verwaltung von Patienten und Terminen in einem Krankenhaus.
 
 Ein Patient kann mehrere Termine haben.
-Jeder Termin gehört zu einem Patienten.
+Jeder Termin gehört zu genau einem Patienten.
 
-Die Daten werden dauerhaft in einer Datenbank gespeichert.
+Die Daten werden dauerhaft in einer PostgreSQL-Datenbank gespeichert.
+
+Zusätzlich wurde ein React-Frontend entwickelt, über das Patienten und Termine erstellt, angezeigt, bearbeitet und gelöscht werden können.
 
 ## Ziele
 
 - Patienten verwalten
 - Termine verwalten
 - Patienten mit ihren Terminen verknüpfen
+- CRUD-Operationen für Patienten und Termine bereitstellen
 - Eingehende Daten validieren
 - Die API gegen häufige Sicherheitsrisiken schützen
 - Daten dauerhaft in einer Datenbank speichern
 - Den Code modular und übersichtlich strukturieren
+- REST API und React-Frontend miteinander verbinden
 
 ## ERD – Entity Relationship Diagram
 
@@ -71,7 +75,7 @@ patientId   FK
 
 Erstellt einen neuen Patienten.
 
-#### Patient Request
+#### Request
 
 ```json
 {
@@ -81,7 +85,7 @@ Erstellt einen neuen Patienten.
 }
 ```
 
-#### Patient Response – 201 Created
+#### Response – 201 Created
 
 ```json
 {
@@ -103,7 +107,7 @@ Mögliche Fehler:
 
 Gibt alle Patienten zurück.
 
-#### Patientenliste Response – 200 OK
+#### Response – 200 OK
 
 ```json
 [
@@ -136,11 +140,68 @@ Mögliche Responses:
 
 ---
 
-### 4. POST /appointments
+### 4. PATCH /patients/:id
+
+Aktualisiert einen bestehenden Patienten.
+
+Es müssen nur die Felder gesendet werden, die geändert werden sollen.
+
+#### Request
+
+```json
+{
+  "name": "Max Mustermann Updated"
+}
+```
+
+#### Response – 200 OK
+
+```json
+{
+  "id": 1,
+  "name": "Max Mustermann Updated",
+  "email": "max@example.com",
+  "birthDate": "1990-05-15T00:00:00.000Z"
+}
+```
+
+Mögliche Fehler:
+
+- `400 Bad Request` – ungültige Patienten-ID oder ungültige Daten
+- `404 Not Found` – Patient nicht gefunden
+- `409 Conflict` – E-Mail-Adresse existiert bereits
+
+---
+
+### 5. DELETE /patients/:id
+
+Löscht einen Patienten.
+
+Ein Patient kann nur gelöscht werden, wenn keine Termine mit diesem Patienten verknüpft sind.
+
+#### Response – 200 OK
+
+```json
+{
+  "message": "Patient erfolgreich gelöscht"
+}
+```
+
+Mögliche Fehler:
+
+- `400 Bad Request` – ungültige Patienten-ID
+- `404 Not Found` – Patient nicht gefunden
+- `409 Conflict` – Patient besitzt noch Termine
+
+Die `409 Conflict`-Prüfung verhindert, dass verknüpfte Termindaten unbeabsichtigt verloren gehen.
+
+---
+
+### 6. POST /appointments
 
 Erstellt einen neuen Termin für einen Patienten.
 
-#### Appointment Request
+#### Request
 
 ```json
 {
@@ -150,7 +211,7 @@ Erstellt einen neuen Termin für einen Patienten.
 }
 ```
 
-#### Appointment Response – 201 Created
+#### Response – 201 Created
 
 ```json
 {
@@ -168,7 +229,7 @@ Mögliche Fehler:
 
 ---
 
-### 5. GET /patients/:id/appointments
+### 7. GET /patients/:id/appointments
 
 Gibt alle Termine eines bestimmten Patienten zurück.
 
@@ -178,7 +239,7 @@ Beispiel:
 GET /patients/1/appointments
 ```
 
-#### Appointment-Liste Response – 200 OK
+#### Response – 200 OK
 
 ```json
 [
@@ -195,6 +256,57 @@ Mögliche Fehler:
 
 - `400 Bad Request` – ungültige Patienten-ID
 - `404 Not Found` – Patient nicht gefunden
+
+---
+
+### 8. PATCH /appointments/:id
+
+Aktualisiert einen bestehenden Termin.
+
+Es müssen nur die Felder gesendet werden, die geändert werden sollen.
+
+#### Request
+
+```json
+{
+  "reason": "Nachkontrolle"
+}
+```
+
+#### Response – 200 OK
+
+```json
+{
+  "id": 1,
+  "date": "2026-09-25T10:00:00.000Z",
+  "reason": "Nachkontrolle",
+  "patientId": 1
+}
+```
+
+Mögliche Fehler:
+
+- `400 Bad Request` – ungültige Termin-ID oder ungültige Daten
+- `404 Not Found` – Termin oder Patient nicht gefunden
+
+---
+
+### 9. DELETE /appointments/:id
+
+Löscht einen bestehenden Termin.
+
+#### Response – 200 OK
+
+```json
+{
+  "message": "Termin erfolgreich gelöscht"
+}
+```
+
+Mögliche Fehler:
+
+- `400 Bad Request` – ungültige Termin-ID
+- `404 Not Found` – Termin nicht gefunden
 
 ## Sicherheitsmaßnahmen
 
@@ -227,7 +339,7 @@ Aktuelle Einstellung:
 
 Bei zu vielen Requests antwortet die API mit:
 
-429 Too Many Requests
+`429 Too Many Requests`
 
 ### JSON Body Limit
 
@@ -239,17 +351,19 @@ Dadurch können sehr große Request-Bodies abgelehnt werden.
 
 Eingehende Patienten- und Termindaten werden mit Zod validiert, bevor sie verarbeitet und in der Datenbank gespeichert werden.
 
+Für PATCH-Requests werden partielle Schemas verwendet, damit nur die zu ändernden Felder gesendet werden müssen.
+
 Ungültige Daten führen zu:
 
-400 Bad Request
+`400 Bad Request`
 
 ### ID Validation
 
-Patienten-IDs werden geprüft, bevor sie an Prisma übergeben werden.
+Patienten- und Termin-IDs werden geprüft, bevor sie an Prisma übergeben werden.
 
-Ungültige IDs wie `/patients/abc` führen zu:
+Ungültige IDs führen zu:
 
-400 Bad Request
+`400 Bad Request`
 
 ### Error Handling
 
@@ -257,13 +371,13 @@ Die API besitzt einen zentralen Error Handler.
 
 Interne Fehler werden mit:
 
-500 Internal Server Error
+`500 Internal Server Error`
 
 beantwortet, ohne interne technische Details an den Client zu senden.
 
 Unbekannte Routen führen zu:
 
-404 Not Found
+`404 Not Found`
 
 ### Datenbank-Sicherheit und Datenintegrität
 
@@ -271,9 +385,11 @@ Die E-Mail-Adresse eines Patienten ist in der Datenbank eindeutig (`@unique`).
 
 Bei einer bereits vorhandenen E-Mail-Adresse wird der Prisma-Fehler P2002 behandelt und die API antwortet mit:
 
-409 Conflict
+`409 Conflict`
 
-Außerdem wird vor dem Erstellen eines Termins geprüft, ob der zugehörige Patient existiert.
+Vor dem Erstellen eines Termins wird geprüft, ob der zugehörige Patient existiert.
+
+Beim Löschen eines Patienten wird zusätzlich geprüft, ob noch Termine mit diesem Patienten verknüpft sind. In diesem Fall wird der Löschvorgang mit `409 Conflict` abgelehnt.
 
 ## Frontend
 
@@ -282,19 +398,59 @@ Zusätzlich zur REST API wurde ein React-Frontend mit Vite erstellt.
 Das Frontend ermöglicht:
 
 - Patienten anzeigen
-- neue Patienten erstellen
+- Patienten erstellen
+- Patienten bearbeiten
+- Patienten löschen
 - Termine eines Patienten anzeigen
-- neue Termine erstellen
+- Termine erstellen
+- Termine bearbeiten
+- Termine löschen
 - API-Requests und Responses in einer API-Konsole anzeigen
+- HTTP-Statuscodes direkt in der Benutzeroberfläche anzeigen
 
 ### Frontend-Struktur
 
 Das Frontend ist modular in wiederverwendbare React-Komponenten aufgeteilt:
 
-- `PatientList` – zeigt die Patientenliste
-- `AppointmentList` – zeigt die Termine eines Patienten
-- `PatientModal` – Formular zum Erstellen eines Patienten
-- `AppointmentModal` – Formular zum Erstellen eines Termins
-- `ApiConsole` – zeigt Endpoint, HTTP-Status und API-Response
+- `PatientList` – zeigt Patienten und Aktionen an
+- `AppointmentList` – zeigt Termine und Aktionen an
+- `PatientModal` – Formular zum Erstellen und Bearbeiten eines Patienten
+- `AppointmentModal` – Formular zum Erstellen und Bearbeiten eines Termins
+- `ApiConsole` – zeigt Endpoint, HTTP-Methode, Status und API-Response
 
 Das Frontend kommuniziert über HTTP mit der REST API.
+
+## Verwendete Technologien
+
+### Backend
+
+- Node.js
+- Express
+- Prisma ORM
+- PostgreSQL
+- Zod
+- Helmet
+- CORS
+- express-rate-limit
+
+### Frontend
+
+- React
+- Vite
+- Tailwind CSS
+- daisyUI
+- Motion
+
+## Projektstruktur
+
+Das Projekt ist modular aufgebaut.
+
+Die Backend-Logik ist unter anderem in folgende Bereiche getrennt:
+
+- Routes
+- Controller
+- Schemas
+- Middleware
+- Prisma / Datenbankzugriff
+
+Das Frontend verwendet separate React-Komponenten für Listen, Formulare und die API-Konsole.
