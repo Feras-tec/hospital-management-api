@@ -20,7 +20,7 @@ function AppointmentList({
           </div>
 
           <button
-            className="btn btn-outline"
+            className="btn btn-primary"
             onClick={onAddAppointment}
             disabled={!selectedPatient}
           >
